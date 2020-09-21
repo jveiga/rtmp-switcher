@@ -212,8 +212,10 @@ impl Mixer {
 
     pub fn stop(&mut self) -> Result<()> {
         self.pipeline.set_state(gst::State::Null)?;
-        self.tx.take().unwrap().send(()).unwrap();
-        self.join_handle.take().unwrap().join().unwrap();
+        if let Some(tx) = self.tx.take() {
+            tx.send(()).unwrap();
+            self.join_handle.take().unwrap().join().unwrap();
+        }
 
         Ok(())
     }
